@@ -1,5 +1,23 @@
 var chunks;
 var toggle = true;
+var mediaRecorder;
+var interval = null;
+
+if (!location.hash) {
+  location.hash = Math.floor(Math.random() * 0xFFFFFF).toString(16);
+}
+const room = location.hash.substring(1);
+
+var socket = io();
+socket.emit('JOIN', room);
+
+let clientId = null;
+ socket.on('connect', () => {
+    clientId = socket.id; // an alphanumeric id...
+ });
+
+
+function record() {
 navigator.mediaDevices.getDisplayMedia({
 
   //navigator.mediaDevices.getUserMedia({
@@ -8,7 +26,7 @@ navigator.mediaDevices.getDisplayMedia({
 }).then(stream => {
   // Display your local video in #localVideo element
     localVideo.srcObject = stream;
-    var mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder = new MediaRecorder(stream);
     
   mediaRecorder.onstart = function(e) {
       chunks = [];
@@ -21,9 +39,48 @@ navigator.mediaDevices.getDisplayMedia({
   
   mediaRecorder.onstop = function(e) {
     console.log('onstop');
-    var blob = new Blob(chunks, { 'type' : 'video/webm' });
+    //var blob = new Blob(chunks, { 'type' : 'video/webm' });
     //socket.emit('radio', blob);
-    var src = window.URL.createObjectURL(blob);
+    
+    socket.emit('VIDEO', {room,clientId, chunks});
+    
+  };
+
+  // Start recording
+      mediaRecorder.start();
+
+    // Stop recording after 5 seconds and broadcast it to server
+    interval = setInterval(function() {
+
+      mediaRecorder.stop()
+      mediaRecorder.start()
+    }, 1000);
+
+});
+
+}
+start.addEventListener("click", function() {
+  console.log('start');
+  if(interval === null)
+  {
+    record();
+  }
+  else
+  {
+    clearInterval(interval)
+    interval = null;
+    
+    let tracks = localVideo.srcObject.getTracks();
+
+    tracks.forEach(track => track.stop());
+    localVideo.srcObject = null;
+  }
+})
+
+socket.on('VIDEO', (message) => {
+    console.log(message);
+    var b = new Blob(message.chunks, { 'type' : 'video/webm' })
+    var src = window.URL.createObjectURL(b);
     if(toggle)
     {
       remoteVideo1.src = src;
@@ -33,18 +90,9 @@ navigator.mediaDevices.getDisplayMedia({
       remoteVideo2.src = src;
     }
     toggle = !toggle;
-  };
 
-  // Start recording
-  mediaRecorder.start();
+})
 
-  // Stop recording after 5 seconds and broadcast it to server
-  setInterval(function() {
-
-    mediaRecorder.stop()
-    mediaRecorder.start()
-  }, 1000);
-});
 
 remoteVideo1.addEventListener("loadeddata", function() { 
   console.log('loaded1');
