@@ -54,4 +54,11 @@ io.on('connection', (socket) => {
     //console.log(socketRoomMap[socket.id])
     io.to(data.room).emit('VIDEO', data);
   });
+  
+    socket.on('IMG', (data) => {
+    console.log(`Nachricht von: ${socket.id}`);
+    //console.log(data);
+    //console.log(socketRoomMap[socket.id])
+    io.to(data.room).emit('IMG', data);
+  });
 });
