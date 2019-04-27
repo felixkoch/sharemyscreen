@@ -59,11 +59,41 @@ navigator.mediaDevices.getDisplayMedia({
 });
 
 }
+
+function recordImg() {
+  navigator.mediaDevices.getDisplayMedia({
+
+  //navigator.mediaDevices.getUserMedia({
+  //audio: true,
+  video: true,
+}).then(stream => {
+  // Display your local video in #localVideo element
+    localVideo.srcObject = stream;
+  //localCanvas.width = localVideo.videoWidth;
+  //localCanvas.height = localVideo.videoHeight;
+  
+
+    // Stop recording after 5 seconds and broadcast it to server
+    interval = setInterval(function() {
+      localCanvas.width = localVideo.videoWidth;
+      localCanvas.height = localVideo.videoHeight;
+      localCanvas.getContext('2d').drawImage(localVideo, 0, 0, localCanvas.width ,localCanvas.height);
+      
+      dataURL = localCanvas.toDataURL();
+      console.log('emit');
+      socket.emit('IMG', {room,clientId, dataURL});
+      
+    }, 1000);
+
+});
+
+}
+
 start.addEventListener("click", function() {
   console.log('start');
   if(interval === null)
   {
-    record();
+    recordImg();
   }
   else
   {
@@ -90,6 +120,12 @@ socket.on('VIDEO', (message) => {
       remoteVideo2.src = src;
     }
     toggle = !toggle;
+
+})
+
+socket.on('IMG', (message) => {
+  console.log('on');
+  remoteImage.src = message.dataURL;
 
 })
 
