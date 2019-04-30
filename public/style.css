@@ -14,3 +14,9 @@ height:250px;
 canvas {
   display:none;
 }
+
+#canvases canvas
+{
+  display: inline;
+  width:30%;
+}
