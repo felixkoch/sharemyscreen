@@ -60,6 +60,7 @@ navigator.mediaDevices.getDisplayMedia({
 
 }
 
+oldImage = new Image();
 function recordImg() {
   navigator.mediaDevices.getDisplayMedia({
 
@@ -78,6 +79,29 @@ function recordImg() {
       localCanvas.width = localVideo.videoWidth;
       localCanvas.height = localVideo.videoHeight;
       localCanvas.getContext('2d').drawImage(localVideo, 0, 0, localCanvas.width ,localCanvas.height);
+      
+      newCanvas.width = localVideo.videoWidth;
+      newCanvas.height = localVideo.videoHeight;
+      oldCanvas.width = localVideo.videoWidth;
+      oldCanvas.height = localVideo.videoHeight;
+      diffCanvas.width = localVideo.videoWidth;
+      diffCanvas.height = localVideo.videoHeight;
+      
+
+      
+      oldCanvas.getContext('2d').drawImage(oldImage,0,0);
+      newCanvas.getContext('2d').drawImage(localCanvas, 0, 0, newCanvas.width, newCanvas.height);
+      
+      var oldData = oldCanvas.getContext('2d').getImageData(0, 0, newCanvas.width, newCanvas.height),
+          newData = newCanvas.getContext('2d').getImageData(0, 0, newCanvas.width, newCanvas.height),
+          diff = diffCanvas.getContext('2d').createImageData(newCanvas.width, newCanvas.height);
+
+      pixelmatch(oldData.data, newData.data, diff.data, newCanvas.width, newCanvas.height, {threshold: 0.1});
+
+      diffCanvas.getContext('2d').putImageData(diff, 0, 0);
+      
+      
+      oldImage.src = localCanvas.toDataURL('image/png');
       
       dataURL = localCanvas.toDataURL();
       console.log('emit');
