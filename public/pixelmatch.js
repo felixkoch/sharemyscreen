@@ -15,6 +15,14 @@ function pixelmatch(img1, img2, output, width, height, options) {
     // 35215 is the maximum possible value for the YIQ difference metric
     var maxDelta = 35215 * threshold * threshold;
     var diff = 0;
+    var result = {
+      diff: 0,
+      minX:null,
+      maxX:null,
+      minY: null,
+      maxY: null,
+      
+    }
 
     // compare each pixel of one image against the other one
     for (var y = 0; y < height; y++) {
@@ -36,7 +44,22 @@ function pixelmatch(img1, img2, output, width, height, options) {
                 } else {
                     // found substantial difference not caused by anti-aliasing; draw it as red
                     if (output) drawPixel(output, pos, 255, 0, 0);
-                    diff++;
+                    if(result.diff == 0)
+                    {
+                      result.minX = x;
+                      result.maxX = x;
+                      result.minY = y;
+                      result.maxY = y;
+                    }
+                    else
+                    {
+                      result.minX = Math.min(result.minX,x);
+                      result.maxX = Math.max(result.maxX,x);
+                      result.minY = Math.min(result.minY,y);
+                      result.maxY = Math.max(result.maxY,y);
+                    }
+                    
+                    result.diff++;
                 }
 
             } else if (output) {
@@ -48,7 +71,7 @@ function pixelmatch(img1, img2, output, width, height, options) {
     }
 
     // return the number of different pixels
-    return diff;
+    return result;
 }
 
 // check if a pixel is likely a part of anti-aliasing;

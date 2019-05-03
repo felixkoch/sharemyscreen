@@ -96,12 +96,17 @@ function recordImg() {
           newData = newCanvas.getContext('2d').getImageData(0, 0, newCanvas.width, newCanvas.height),
           diff = diffCanvas.getContext('2d').createImageData(newCanvas.width, newCanvas.height);
 
-      pixelmatch(oldData.data, newData.data, diff.data, newCanvas.width, newCanvas.height, {threshold: 0.1});
+      var result = pixelmatch(oldData.data, newData.data, diff.data, newCanvas.width, newCanvas.height, {threshold: 0.1});
+      console.log(result);
 
       diffCanvas.getContext('2d').putImageData(diff, 0, 0);
-      
-      
+           
       oldImage.src = localCanvas.toDataURL('image/png');
+      
+      if(result.diff > 0)
+      {
+        localCanvas.getContext('2d').getImageData(result.minX, result.minY, result.maxX-result.minX, result.maxY-result.minY);
+      }
       
       dataURL = localCanvas.toDataURL();
       console.log('emit');
