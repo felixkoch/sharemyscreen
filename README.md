@@ -4,4 +4,4 @@
 - Stream images
 - pixelmatch
 - canvas placeholder
-- pixelmatch
+- fetch diff area
