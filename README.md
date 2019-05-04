@@ -5,3 +5,4 @@
 - pixelmatch
 - canvas placeholder
 - fetch diff area
+- transfering only changed areas
