@@ -105,12 +105,17 @@ function recordImg() {
       
       if(result.diff > 0)
       {
-        localCanvas.getContext('2d').getImageData(result.minX, result.minY, result.maxX-result.minX, result.maxY-result.minY);
+        var areaData = localCanvas.getContext('2d').getImageData(result.minX, result.minY, result.maxX-result.minX, result.maxY-result.minY);
+        areaCanvas.width = result.maxX-result.minX
+        areaCanvas.height = result.maxY-result.minY
+        areaCanvas.getContext('2d').putImageData(areaData, 0, 0);
+        dataURL = areaCanvas.toDataURL();
+        socket.emit('IMG', {room,clientId, dataURL});
       }
       
-      dataURL = localCanvas.toDataURL();
+      //dataURL = localCanvas.toDataURL();
       console.log('emit');
-      socket.emit('IMG', {room,clientId, dataURL});
+      //socket.emit('IMG', {room,clientId, dataURL});
       
     }, 1000);
 
