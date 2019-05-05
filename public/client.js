@@ -159,8 +159,14 @@ socket.on('VIDEO', (message) => {
 
 socket.on('IMG', (message) => {
   console.log('on');
+  
+  var remoteImage = new Image();
+  remoteImage.onload = function() {
+     remoteCanvas.getContext('2d').drawImage(remoteImage, 0, 0);
+  };
+  
   remoteImage.src = message.dataURL;
-
+  
 })
 
 
