@@ -11,9 +11,7 @@ height:250px;
   background-color: transparent;
 }
 
-canvas {
-  display:none;
-}
+
 
 #canvases canvas
 {
