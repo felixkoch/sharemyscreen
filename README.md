@@ -7,3 +7,4 @@
 - fetch diff area
 - transfering only changed areas
 - draw to remoteCanvas
+- cleaning up
