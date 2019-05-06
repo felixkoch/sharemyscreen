@@ -17,49 +17,6 @@ let clientId = null;
  });
 
 
-function record() {
-navigator.mediaDevices.getDisplayMedia({
-
-  //navigator.mediaDevices.getUserMedia({
-  //audio: true,
-  video: true,
-}).then(stream => {
-  // Display your local video in #localVideo element
-    localVideo.srcObject = stream;
-  mediaRecorder = new MediaRecorder(stream);
-    
-  mediaRecorder.onstart = function(e) {
-      chunks = [];
-  };
-  
-  mediaRecorder.ondataavailable = function(e) {
-    console.log('ondataavailable');
-    chunks.push(e.data);
-  };
-  
-  mediaRecorder.onstop = function(e) {
-    console.log('onstop');
-    //var blob = new Blob(chunks, { 'type' : 'video/webm' });
-    //socket.emit('radio', blob);
-    
-    socket.emit('VIDEO', {room,clientId, chunks});
-    
-  };
-
-  // Start recording
-      mediaRecorder.start();
-
-    // Stop recording after 5 seconds and broadcast it to server
-    interval = setInterval(function() {
-
-      mediaRecorder.stop()
-      mediaRecorder.start()
-    }, 1000);
-
-});
-
-}
-
 oldImage = new Image();
 function recordImg() {
   navigator.mediaDevices.getDisplayMedia({
@@ -110,7 +67,16 @@ function recordImg() {
         areaCanvas.height = result.maxY-result.minY
         areaCanvas.getContext('2d').putImageData(areaData, 0, 0);
         dataURL = areaCanvas.toDataURL();
-        socket.emit('IMG', {room,clientId, dataURL});
+        socket.emit('IMG', {room,
+                            clientId,
+                            videoWidth: localVideo.videoWidth,
+                            videoHeight: localVideo.videoHeight,
+                            imgWidth: result.maxX-result.minX,
+                            imgHeight: result.maxY-result.minY,
+                            imgX: result.minX,
+                            imgY:result.minY,
+                            
+                            dataURL});
       }
       
       //dataURL = localCanvas.toDataURL();
@@ -141,43 +107,17 @@ start.addEventListener("click", function() {
   }
 })
 
-socket.on('VIDEO', (message) => {
-    console.log(message);
-    var b = new Blob(message.chunks, { 'type' : 'video/webm' })
-    var src = window.URL.createObjectURL(b);
-    if(toggle)
-    {
-      remoteVideo1.src = src;
-    }
-    else
-    {
-      remoteVideo2.src = src;
-    }
-    toggle = !toggle;
-
-})
-
 socket.on('IMG', (message) => {
   console.log('on');
   
+  remoteCanvas.width = message.videoWidth;
+  remoteCanvas.height = message.videoHeight;
+  
   var remoteImage = new Image();
   remoteImage.onload = function() {
-     remoteCanvas.getContext('2d').drawImage(remoteImage, 0, 0);
+     remoteCanvas.getContext('2d').drawImage(remoteImage, message.imgX, message.imgY);//, message.imgWidth, message.imgY);
   };
   
   remoteImage.src = message.dataURL;
   
 })
-
-
-remoteVideo1.addEventListener("loadeddata", function() { 
-  console.log('loaded1');
-  remoteVideo1.style.zIndex = "5";
-  remoteVideo2.style.zIndex = "1";
-}, true);
-
-remoteVideo2.addEventListener("loadeddata", function() { 
-  console.log('loaded2');
-  remoteVideo1.style.zIndex = "1";
-  remoteVideo2.style.zIndex = "5";
-}, true);
