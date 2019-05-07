@@ -54,7 +54,7 @@ function recordImg() {
           diff = diffCanvas.getContext('2d').createImageData(newCanvas.width, newCanvas.height);
 
       var result = pixelmatch(oldData.data, newData.data, diff.data, newCanvas.width, newCanvas.height, {threshold: 0.1});
-      console.log(result);
+      
 
       diffCanvas.getContext('2d').putImageData(diff, 0, 0);
            
@@ -62,6 +62,7 @@ function recordImg() {
       
       if(result.diff > 0)
       {
+        console.log(result);
         var areaData = localCanvas.getContext('2d').getImageData(result.minX, result.minY, result.maxX-result.minX, result.maxY-result.minY);
         areaCanvas.width = result.maxX-result.minX
         areaCanvas.height = result.maxY-result.minY
@@ -80,7 +81,6 @@ function recordImg() {
       }
       
       //dataURL = localCanvas.toDataURL();
-      console.log('emit');
       //socket.emit('IMG', {room,clientId, dataURL});
       
     }, 1000);
@@ -107,15 +107,26 @@ start.addEventListener("click", function() {
   }
 })
 
+remoteCanvasWidth = 0;
+remoteCanvasHeight = 0;
+remoteCtx = remoteCanvas.getContext('2d')
+//remoteCtx.globalCompositeOperation='destination-over'
 socket.on('IMG', (message) => {
   console.log('on');
+  console.log(remoteCtx.globalCompositeOperation);
   
-  remoteCanvas.width = message.videoWidth;
-  remoteCanvas.height = message.videoHeight;
+  if(remoteCanvasWidth != message.videoWidth || remoteCanvasHeight != message.videoHeight)
+  {
+    remoteCanvasWidth = message.videoWidth;
+    remoteCanvasHeight = message.videoHeight;
+    remoteCanvas.width = message.videoWidth;
+    remoteCanvas.height = message.videoHeight;
+  }
+  
   
   var remoteImage = new Image();
   remoteImage.onload = function() {
-     remoteCanvas.getContext('2d').drawImage(remoteImage, message.imgX, message.imgY);//, message.imgWidth, message.imgY);
+     remoteCtx.drawImage(remoteImage, message.imgX, message.imgY);//, message.imgWidth, message.imgY);
   };
   
   remoteImage.src = message.dataURL;
