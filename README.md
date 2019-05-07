@@ -8,3 +8,4 @@
 - transfering only changed areas
 - draw to remoteCanvas
 - cleaning up
+- fix remote canvas
