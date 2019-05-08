@@ -9,3 +9,4 @@
 - draw to remoteCanvas
 - cleaning up
 - fix remote canvas
+- poc ready
