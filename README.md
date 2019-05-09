@@ -10,3 +10,4 @@
 - cleaning up
 - fix remote canvas
 - poc ready
+- tweak timings
