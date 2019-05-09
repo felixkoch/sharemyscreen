@@ -74,15 +74,15 @@ function record() {
   {
     ms = 250;
   }
-  else if(result.diff < 250)
+  else if(result.diff < 1000)
+  {
+    ms = 50;
+  }
+  else if(result.diff < 5000)
   {
     ms = 100;
   }
-  else if(result.diff < 2500)
-  {
-    ms = 200;
-  }
-  else if(result.diff < 5000)
+  else if(result.diff < 10000)
   {
     ms = 500;
   }
